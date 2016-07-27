@@ -1,0 +1,29 @@
+.banner-enter {
+  transform: translate(0%,-100%);
+}
+.banner-enter.banner-enter-active {
+  transform: translate(0%,0%);
+  transition: transform 550ms ease-in-out;
+}
+.banner-leave {
+  transform: translate(0%,0%);
+}
+.banner-leave.banner-leave-active {
+  transform: translate(0%,-100%);
+  transition: transform 550ms ease-in-out;
+}
+
+.noteTransition-enter {
+  transform: translate(0%,200%);
+}
+.noteTransition-enter.noteTransition-enter-active {
+  transform: translate(0%,0%);
+  transition: transform 550ms ease-in-out;
+}
+.noteTransition-leave {
+  transform: translate(0%,0%);
+}
+.noteTransition-leave.noteTransition-leave-active {
+  transform: translate(0%,200%);
+  transition: transform 550ms ease-in-out;
+}

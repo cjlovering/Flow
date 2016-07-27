@@ -1,0 +1,44 @@
+{
+  "name": "flow",
+  "version": "1.0.0",
+  "description": "visual experiment",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "browserify -t [ babelify --presets [ react ] ] src/js/app.js -o build/bundle.js",
+    "release": "browserify src/js/app.js -t envify --NODE_ENV production  | uglifyjs -mc warnings=false > build/bundle.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cjlovering/Flow.git"
+  },
+  "keywords": [
+    "displays"
+  ],
+  "author": "Charles Lovering",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cjlovering/Flow/issues"
+  },
+  "homepage": "https://github.com/cjlovering/Flow#readme",
+  "dependencies": {
+    "babel-preset-react": "^6.11.1",
+    "babelify": "^7.3.0",
+    "browserify": "^13.0.1",
+    "envify": "^3.4.1",
+    "flux": "^2.1.1",
+    "jquery": "^3.1.0",
+    "keymirror": "^0.1.1",
+    "react": "^15.2.1",
+    "react-addons-css-transition-group": "^15.2.1",
+    "react-dom": "^15.2.1",
+    "reactify": "^1.1.1",
+    "uglify": "^0.1.5"
+  },
+  "browserify": {
+    "transform": [
+      "reactify",
+      "envify"
+    ]
+  }
+}
