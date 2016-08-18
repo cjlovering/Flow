@@ -16,7 +16,6 @@ var PlayPane = React.createClass({
      */
     var focus = this.props.focus ? " focused" : " unfocused";
     var playMode = this.props.focus ? PlayConstants.PLAY_PLAY_FAST : PlayConstants.PLAY_PLAY_SLOW;
-    console.log(this.props.sizing);
 
     return (
       <div className={styleName}

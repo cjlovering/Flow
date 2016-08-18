@@ -44,14 +44,12 @@ var Experiment = React.createClass({
      PlayStore.removeChangeListener(this._onChange);
    },
    render: function() {
-     console.log(this.state.sizing);
 	    return ( <PlayPane
                 focus={true}
                 sizing={this.state.sizing}
                 viewMode={this.state.viewMode}/> );
   },
   _eventListenerResize: function(){
-    console.log("timeout");
     clearTimeout(resizeId);
     resizeId = setTimeout(this._onResizeAction, 250);
   },
@@ -61,7 +59,6 @@ var Experiment = React.createClass({
    * isn't needed, but whatever for now.
    */
   _onResizeAction: function(){
-    console.log("resize action");
     PlayActions.goCalcuateSizes();
   }
 });
