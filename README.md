@@ -1,7 +1,7 @@
 # Flow
 a js html5 canvas experiment: looking to mimic aspects of water flowing.
 
-* not yet live
+* not live
 * will be configured and added to playground
 
 
