@@ -31318,16 +31318,11 @@ var settings = {
   dropletNumber: 100,
   gravityOnWater: 0.02,
   bounceRadius: 100,
-  slide: false
+  slide: false,
+  showRadius: true,
+  play: true,
+  clear: true
 };
-
-/**
- * TODO:
- *  increase smoothness (decrease base speeds) - look at one ball to see changes
- *  do math for angles better
- *  add other events! (cohesion, adhesion, gravity more effective, then mouse)
- *  make it move at least one pixel at a time (it might be already)
- */
 
 /** canvas attributes
  *  these are kept up to-date, and used rather than canvas.attribute in order to
@@ -31339,30 +31334,32 @@ var canvasWidth, canvasHeight;
  * These are tendencies the particles will use to simulate desired behavior
  */
 
-var bounceMouseRadiusActive = true;
 var target;
 
-function rand(number) {
-  return Math.random() * number + 1;
-}
-function direction() {
-  return Math.random() * 2 > 1 ? 1 : -1;
-}
-function max(x, y) {
-  return x > y ? x : y;
-}
-function maxAbs(x, y) {
-  return Math.abs(x) > Math.abs(y) ? x : y;
-}
-function square(x) {
-  return x * x;
-}
-function pyth(x1, y1, x2, y2) {
-  return Math.sqrt(square(x1 - x2) + square(y1 - y2));
-}
-function sign(x) {
-  return x ? x < 0 ? -1 : 1 : 0;
-}
+var util = {
+  rand: function (number) {
+    return Math.random() * number + 1;
+  },
+  direction: function () {
+    return Math.random() * 2 > 1 ? 1 : -1;
+  },
+  max: function (x, y) {
+    return x > y ? x : y;
+  },
+  maxAbs: function (x, y) {
+    return Math.abs(x) > Math.abs(y) ? x : y;
+  },
+  square: function (x) {
+    return x * x;
+  },
+  pyth: function (x1, y1, x2, y2) {
+    return Math.sqrt(this.square(x1 - x2) + this.square(y1 - y2));
+  },
+  sign: function (x) {
+    return x ? x < 0 ? -1 : 1 : 0;
+  }
+};
+
 function shakeDroplets() {
   for (var i = 0; i < droplets.length; i++) droplets[i].Shake();
 }
@@ -31381,39 +31378,34 @@ function gravityChangeDroplets() {
  * @attribute {number} r: the radius of the droplet (this may be a global constant)
  */
 function Droplet(i) {
-  this.gy = max(0.01, settings.gravityOnWater * rand(10));
-  this.x = rand(canvasWidth);
-  this.y = rand(canvasHeight);
+  this.gy = util.max(0.01, settings.gravityOnWater * util.rand(10));
+  this.x = util.rand(canvasWidth);
+  this.y = util.rand(canvasHeight);
   this.xx = this.x;
   this.yy = this.y;
-  this.vx = direction() * rand(3);
-  this.vy = direction() * rand(3);
+  this.vx = util.direction() * util.rand(3);
+  this.vy = util.direction() * util.rand(3);
   this.internalVx = 0; //direction() * rand(2); <-- consider this
   this.internalVy = 0; //direction() * rand(2);
   this.r = 3; //base it no neighbors??
   this.up = this.vy > 0;
 
   this.distanceApart = function (xxx, yyy) {
-    return Math.sqrt(square(xxx - this.x) + square(yyy - this.y));
+    return Math.sqrt(util.square(xxx - this.x) + util.square(yyy - this.y));
   };
 
   this.GravityChanged = function () {
-    this.gy = max(0.01, settings.gravityOnWater * rand(10));
+    this.gy = util.max(0.01, settings.gravityOnWater * util.rand(10));
   };
 
   this.Shake = function () {
-    this.vx = direction() * rand(5);
-    this.vy = direction() * rand(25);
-    // this.internalVx = this.vx%1 * rand(10) ;
-    // this.internalVy = this.vy%1 * rand(10) ;
-    // this.up = true;
-    //this.gy *= -1;
+    this.vx = util.direction() * util.rand(5);
+    this.vy = util.direction() * util.rand(25);
   };
 
   this.Draw = function () {
-    //perhaps this will later connect inner area of droplets, and smoothly draw the edges
     ctx = canvas.getContext('2d');
-    ctx.fillStyle = "red"; //  "#0000A0";
+    ctx.fillStyle = "red";
     ctx.beginPath();
     ctx.arc(Math.floor(this.x), Math.floor(this.y), this.r, 0, Math.PI * 2, true);
     ctx.closePath();
@@ -31439,21 +31431,21 @@ function Droplet(i) {
     }
     if (this.y <= 0) {
       this.y = 1;
-      this.vy = -1 * this.vy; //% 1) * Math.abs(direction() * rand(3));
+      this.vy = -1 * this.vy;
       this.internalVy = 0;
       this.internalVx = 0;
       this.up = false;
     }
     if (this.y >= canvasHeight) {
       this.y = canvasHeight - 1;
-      this.vy = -1 * this.vy; // % 1) * Math.abs(direction() * rand(3));
+      this.vy = -1 * this.vy;
       this.internalVy = 0;
       this.internalVx = 0;
       this.up = false;
     }
 
     //gravity on vy
-    this.vy += max(Math.abs(this.vy) * this.gy, this.gy);
+    this.vy += util.max(Math.abs(this.vy) * this.gy, this.gy);
 
     //move
     this.xx = this.x;
@@ -31461,8 +31453,8 @@ function Droplet(i) {
     this.x += this.vx + this.internalVx;
     this.y += this.vy + this.internalVy;
 
-    var distBox = square(target.x - this.x) + square(target.y - this.y);
-    if (distBox < square(settings.bounceRadius)) {
+    var distBox = util.square(target.x - this.x) + util.square(target.y - this.y);
+    if (distBox < util.square(settings.bounceRadius)) {
       var dist = Math.sqrt(distBox);
       var xDif = this.x - target.x;
       var yDif = this.y - target.y;
@@ -31494,8 +31486,8 @@ function Droplet(i) {
 
       if (settings.slide) {
         this.up = true;
-        this.internalVx = maxAbs(xDif % 1 * 10, this.vx * (xDif % 1));
-        this.internalVy = maxAbs(yDif % 1 * 10, this.vy * (yDif % 1));
+        this.internalVx = util.maxAbs(util.sign(xDif) * 10, this.vx * util.sign(xDif));
+        this.internalVy = util.maxAbs(util.sign(yDif) * 10, this.vy * util.sign(yDif));
       } else {
         this.vx = 0;
         this.vy = 0;
@@ -31503,14 +31495,15 @@ function Droplet(i) {
     }
 
     if (this.up) {
-      this.internalVx = maxAbs(0.01, this.internalVx - .01 * (this.internalVx % 1));
-      this.internalVy = maxAbs(0.01, this.internalVy - .01 * (this.internalVy % 1));
+      this.internalVx = util.maxAbs(0.01, this.internalVx - .01 * util.sign(this.internalVx));
+      this.internalVy = util.maxAbs(0.01, this.internalVy - .01 * util.sign(this.internalVy));
       if (this.internalVx == 0.01 && this.internalVy == 0.01) this.up = false;
     }
   };
 }
 
 function drawMouseRadius() {
+  if (!settings.showRadius) return;
   ctx = canvas.getContext('2d');
   ctx.fillStyle = "grey";
   ctx.globalAlpha = 0.3;
@@ -31557,12 +31550,12 @@ var Flow = React.createClass({
 
       canvas.addEventListener("mouseout", function (eventInfo) {
         //idk.
-        bounceMouseRadiusActive = false;
+        settings.showRadius = false;
       });
 
       canvas.addEventListener("mouseenter", function (eventInfo) {
         //idk.
-        bounceMouseRadiusActive = true;
+        settings.showRadius = true;
       });
 
       this.loop();
@@ -31599,7 +31592,7 @@ var Flow = React.createClass({
     }
   },
   drawDroplets: function () {
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    if (settings.clear) ctx.clearRect(0, 0, canvasWidth, canvasHeight);
     drawMouseRadius();
     //todo: for performance, draww all stars modulo the same at the same time (to do the same color)
     for (d in droplets) {
